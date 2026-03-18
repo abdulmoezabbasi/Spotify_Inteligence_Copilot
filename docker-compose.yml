@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  # FastAPI Backend
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: spotify-api
+    ports:
+      - "8000:8000"
+    environment:
+      - API_BASE_URL=http://localhost:8000
+      - LOG_LEVEL=INFO
+    volumes:
+      - ./data:/app/data:ro
+      - ./models:/app/models:ro
+      - ./mlflow_runs:/app/mlflow_runs:ro
+    command: uvicorn api.main:app --host 0.0.0.0 --port 8000
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - spotify_net
+
+  # Streamlit Dashboard
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: spotify-dashboard
+    ports:
+      - "8501:8501"
+    environment:
+      - API_BASE_URL=http://api:8000
+      - STREAMLIT_SERVER_PORT=8501
+      - STREAMLIT_SERVER_ADDRESS=0.0.0.0
+    volumes:
+      - ./data:/app/data:ro
+    command: streamlit run app.py
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - spotify_net
+
+networks:
+  spotify_net:
+    driver: bridge
+
+# Volumes for persistent data
+volumes:
+  models:
+    driver: local
+  data:
+    driver: local

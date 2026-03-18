@@ -1,0 +1,49 @@
+# Docker build context exclusions
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.egg-info
+.Python
+venv/
+.venv/
+env/
+*.egg
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Git
+.git
+.gitignore
+
+# Notebooks (use savedmodels instead)
+*.ipynb
+.ipynb_checkpoints
+
+# Data (use mounted volumes)
+data/
+*.csv
+
+# MLflow runs (mount separately)
+mlflow_runs/
+
+# Environment
+.env
+.env.local
+
+# Test & coverage
+.pytest_cache
+.coverage
+htmlcov
+
+# Temporary
+tmp/
+temp/
+*.log
